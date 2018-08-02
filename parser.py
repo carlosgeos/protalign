@@ -6,7 +6,7 @@ def dssp_parse(ifile, sequence_id="A"):
     # search for the pattern that contains the third, fourth and fifth
     # columns
     with open(ifile, 'r') as dssp:
-        aa_struct_tuples = re.findall('\s+\d+\s+\d+\s'+ sequence_id + '\s(.)\s\s(.)',
+        aa_struct_tuples = re.findall('\s+\d+\s+\d+\s' + sequence_id + '\s(.)\s\s(.)',
                                       dssp.read())
     # filter B, X and Z
     aa_struct_tuples = list(filter(lambda x: x[0] not in ['B', 'X', 'Z'],
@@ -23,7 +23,7 @@ def clean_lower_case(tupl):
     return tupl
 
 def create_fasta(accession, file_name, aa_struct_tuples):
-    """Generates a FASTA formatted file with an acession, a file_name and
+    """Generates a FASTA formatted file with an accession, a file_name and
     the tuple containing the residues
 
     These tuples are previously extracted from the DSSP output

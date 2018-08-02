@@ -1,7 +1,9 @@
 import numpy as np
 
+INFINITY = 1000
 
-class ScoreMatrix:
+
+class BacktrackMatrix:
     def __init__(self, seq1, seq2, sub_m, g, e, inf):
         """Generates a traceback matrix with 2 sequences and a substitution matrix.
 
@@ -14,15 +16,15 @@ class ScoreMatrix:
         self.v = np.zeros((len(seq2) + 1, len(seq1) + 1), dtype=int)
         self.w = np.zeros((len(seq2) + 1, len(seq1) + 1), dtype=int)
 
-        self.init_matrices(g, e, inf)
+        self.init_matrices(g, e)
 
-    def init_matrices(self, g, e, inf):
+    def init_matrices(self, g, e):
         for i in range(1, len(self.s)):
             self.s[i][0] = g + (i - 1) * e
-            self.v[i][0] = - inf
+            self.v[i][0] = - INFINITY
         for j in range(1, len(self.s[0])):
             self.s[0][j] = g + (j - 1) * e
-            self.w[0][j] = - inf
+            self.w[0][j] = - INFINITY
 
         for i in range(1, len(self.s)):
             for j in range(1, len(self.s[0])):
@@ -42,9 +44,13 @@ class ScoreMatrix:
                     self.w[i][j]
                 )
 
+    def packed(self):
+        return (self.s, self.v, self.w)
 
-class ScoreMatrixSW(ScoreMatrix):
-    def init_matrices(self, g, e, inf, path=[]):
+
+
+class BacktrackMatrixSW(BacktrackMatrix):
+    def init_matrices(self, g, e, path=[]):
         for i in range(1, len(self.s)):
             for j in range(1, len(self.s[0])):
                 if (i, j) not in path:
@@ -67,10 +73,10 @@ class ScoreMatrixSW(ScoreMatrix):
                         0
                     )
 
-    def recalibrate(self, path, g, e, inf):
+    def recalibrate(self, path, g, e):
         for index_tuple in path:
             self.s[index_tuple[0], index_tuple[1]] = 0
             self.v[index_tuple[0], index_tuple[1]] = 0
             self.w[index_tuple[0], index_tuple[1]] = 0
 
-        self.init_matrices(g, e, inf, path)
+        self.init_matrices(g, e, path)

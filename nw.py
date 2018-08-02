@@ -1,7 +1,7 @@
 from textwrap import wrap
 import re
 
-def alignNeedlemanWunsch(k, sub_m, svw, seq1, seq2, g, e):
+def align_needleman_wunsch(k, sub_m, svw, seq1, seq2, g, e):
     s = svw[0]; v = svw[1]; w = svw[2] # unpacking
 
     i = len(seq2)

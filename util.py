@@ -70,31 +70,44 @@ def sub_mat_parse(ifile):
 
 
 def generate_dots(align1, align2, sub_m):
+    """LALIGN-like display dots, the count of colons and semicolons is
+    used to determine the identity and similarity percentage (just
+    like in LALIGN)
+
+    """
     dots = ""
+    colons = 0
+    semicolons = 0
     for i in range(len(align1)):
         if align1[i] == align2[i]:
             dots += ":"
+            colons += 1
         elif align1[i] == "-" or align2[i] == "-":
             dots += " "
         elif sub_m.get_score_by_letter(align1[i], align2[i]) >= 0:
             dots += "."
+            semicolons += 1
         else:
             dots += " "
         if len(align1) >= 80:
             align1
 
-    return dots
+    return dots, colons, semicolons
 
 def generate_lalign_output(align1, align2, dots):
+    """Mimic LALIGN's output
+    """
     out = ""
 
     # split strings as a list, wrap each element to 50 characters
     a1 = re.findall('.{1,50}', align1)
     a2 = re.findall('.{1,50}', align2)
-    d = re.findall('.{1,50}', dots)
+    d = re.findall('.{1,50}', dots[0])
 
     for i in range(0, len(a1)):
-        # combine strings
+        # combine string + dots + string
         out += a1[i] + "\n" + d[i] + "\n" + a2[i] + "\n\n"
 
-    return out
+    return {"aligned_sequences": out,
+            "colons": dots[1],
+            "semicolons": dots[2]}
