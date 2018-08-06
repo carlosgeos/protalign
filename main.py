@@ -11,29 +11,25 @@ SEQUENCE_FILE = "WW-sequence"
 SUB_MATRIX = "blosum50"
 GAP_PENALTY = -4
 E_GAP_PENALTY = -1              # extended
-INFINITY = -100000
+INFINITY = 100000
 
 def main():
     seq_all = seq_parse("data/" + SEQUENCE_FILE + ".fasta")
     sequences = [Sequence(seq) for seq in seq_all]
 
-    seq1 = sequences[1]; seq2 = sequences[2]
+    #seq1 = sequences[1]; seq2 = sequences[2]
 
-    #seq1 = Sequence.fromstring("THISLINE")
-    #seq2 = Sequence.fromstring("ISALIGNED")
+    seq1 = Sequence.fromstring("THISLINE")
+    seq2 = Sequence.fromstring("ISALIGNED")
 
     sub_m = Score(sub_mat_parse("data/" + SUB_MATRIX + ".txt"))
 
-    score_matrix = BacktrackMatrix(seq1, seq2, sub_m, GAP_PENALTY,
-                                   E_GAP_PENALTY, INFINITY)
-    svw = score_matrix.packed() # Three packed matrices in a tuple
+    backtrack_matrix = BacktrackMatrix(seq1, seq2, sub_m)
 
     k = 1
-    align1, align2, final_score = align_needleman_wunsch(k, sub_m, svw, seq1, seq2,
-                                                         GAP_PENALTY, E_GAP_PENALTY)
+    align1, align2, final_score = align_needleman_wunsch(k, sub_m, backtrack_matrix.s, seq1, seq2)
     dots = generate_dots(align1, align2, sub_m)
     ll_output = generate_lalign_output(align1, align2, dots)
-
 
     print("--- Global align ---")
     print("Opening gap penalty:\t", GAP_PENALTY)
