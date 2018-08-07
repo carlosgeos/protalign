@@ -1,5 +1,6 @@
 import numpy as np
 import re
+from glob import GAP_PENALTY, E_GAP_PENALTY
 
 
 def seq_parse(ifile):
@@ -94,20 +95,34 @@ def generate_dots(align1, align2, sub_m):
 
     return dots, colons, semicolons
 
-def generate_lalign_output(align1, align2, dots):
+def print_lalign_output(align1, align2, sub_m, score, seq1, seq2):
     """Mimic LALIGN's output
     """
+    (dots, colons, semicolons) = generate_dots(align1, align2, sub_m)
     out = ""
 
     # split strings as a list, wrap each element to 50 characters
     a1 = re.findall('.{1,50}', align1)
     a2 = re.findall('.{1,50}', align2)
-    d = re.findall('.{1,50}', dots[0])
+    d = re.findall('.{1,50}', dots)
 
     for i in range(0, len(a1)):
         # combine string + dots + string
         out += a1[i] + "\n" + d[i] + "\n" + a2[i] + "\n\n"
 
-    return {"aligned_sequences": out,
-            "colons": dots[1],
-            "semicolons": dots[2]}
+    print("--- Global align ---")
+    print("Opening gap penalty:\t", GAP_PENALTY)
+    print("Extending gap penalty:\t", E_GAP_PENALTY)
+    print("N-W score:\t\t", score)
+    identity = "{:%}".format(colons / max(len(seq1), len(seq2)))
+    similarity = "{:%}".format((semicolons + colons)
+                               / max(len(seq1), len(seq2)))
+    print("Identity:\t\t", identity)
+    print("Similarity:\t\t", similarity, "\n")
+    print(out)
+
+
+
+     # return {"aligned_sequences": out,
+     #       "colons": dots[1],
+     #        "semicolons": dots[2]}

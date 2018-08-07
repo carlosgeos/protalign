@@ -3,44 +3,27 @@ from sequence import Sequence
 from backtrack_matrix import BacktrackMatrix, BacktrackMatrixSW
 from nw import align_needleman_wunsch
 from sw import align_smith_waterman
+from util import seq_parse, sub_mat_parse
+from glob import SEQUENCE_FILE, SUB_MATRIX
 
-from util import seq_parse, sub_mat_parse, generate_dots, generate_lalign_output
-
-
-SEQUENCE_FILE = "WW-sequence"
-SUB_MATRIX = "blosum50"
-GAP_PENALTY = -4
-E_GAP_PENALTY = -1              # extended
-INFINITY = 100000
 
 def main():
     seq_all = seq_parse("data/" + SEQUENCE_FILE + ".fasta")
     sequences = [Sequence(seq) for seq in seq_all]
 
-    #seq1 = sequences[1]; seq2 = sequences[2]
+    #seq2 = sequences[2]; seq1 = sequences[3]
+    # print(seq1)
+    # print(seq2)
 
-    seq1 = Sequence.fromstring("THISLINE")
-    seq2 = Sequence.fromstring("ISALIGNED")
+    seq1 = Sequence.fromstring("ACGT")
+    seq2 = Sequence.fromstring("ACGGCT")
 
     sub_m = Score(sub_mat_parse("data/" + SUB_MATRIX + ".txt"))
 
     backtrack_matrix = BacktrackMatrix(seq1, seq2, sub_m)
 
-    k = 1
-    align1, align2, final_score = align_needleman_wunsch(k, sub_m, backtrack_matrix.s, seq1, seq2)
-    dots = generate_dots(align1, align2, sub_m)
-    ll_output = generate_lalign_output(align1, align2, dots)
+    align_needleman_wunsch(sub_m, backtrack_matrix.s, seq1, seq2)
 
-    print("--- Global align ---")
-    print("Opening gap penalty:\t", GAP_PENALTY)
-    print("Extending gap penalty:\t", E_GAP_PENALTY)
-    print("N-W score:\t\t", final_score)
-    identity = "{:%}".format(ll_output["colons"] / max(len(seq1), len(seq2)))
-    similarity = "{:%}".format((ll_output["semicolons"] + ll_output["colons"])
-                               / max(len(seq1), len(seq2)))
-    print("Identity:\t\t", identity)
-    print("Similarity:\t\t", similarity, "\n")
-    print(ll_output["aligned_sequences"])
 
     # print("---------------------------------------------------")
     # print("SW align")

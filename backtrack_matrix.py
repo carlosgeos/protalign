@@ -1,10 +1,9 @@
 import numpy as np
 
-GAP_PENALTY = -4
-E_GAP_PENALTY = -1              # extended
-INFINITY = 100000
+from glob import GAP_PENALTY, E_GAP_PENALTY, INFINITY
 g = GAP_PENALTY
 e = E_GAP_PENALTY
+
 
 class BacktrackMatrix:
     def __init__(self, seq1, seq2, sub_m):
@@ -42,17 +41,17 @@ class BacktrackMatrix:
                 )
                 diagonal = self.s[i - 1][j - 1][0][0] + \
                     self.sub_m.get_score_by_index(j - 1, self.seq1, i - 1, self.seq2)
-                top = self.v[i][j]
-                left = self.w[i][j]
+                left = self.v[i][j]
+                top = self.w[i][j]
                 max_option = max(diagonal, top, left)
 
                 self.s[i][j] = []
 
                 if(diagonal == max_option):
                     self.s[i][j].append((diagonal, 'UL'))
-                elif(top == max_option):
+                if(top == max_option):
                     self.s[i][j].append((top, 'U'))
-                elif(left == max_option):
+                if(left == max_option):
                     self.s[i][j].append((left, 'L'))
 
 
