@@ -4,7 +4,7 @@ from backtrack_matrix import BacktrackMatrix, BacktrackMatrixSW
 from nw import align_needleman_wunsch
 from sw import align_smith_waterman
 from util import seq_parse, sub_mat_parse
-from glob import SEQUENCE_FILE, SUB_MATRIX
+from glob_opts import SEQUENCE_FILE, SUB_MATRIX
 
 
 def main():

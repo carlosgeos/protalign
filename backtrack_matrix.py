@@ -1,6 +1,6 @@
 import numpy as np
 
-from glob import GAP_PENALTY, E_GAP_PENALTY, INFINITY
+from glob_opts import GAP_PENALTY, E_GAP_PENALTY, INFINITY
 g = GAP_PENALTY
 e = E_GAP_PENALTY
 

@@ -1,6 +1,6 @@
 import numpy as np
 import re
-from glob import GAP_PENALTY, E_GAP_PENALTY
+from glob_opts import GAP_PENALTY, E_GAP_PENALTY
 
 
 def seq_parse(ifile):
