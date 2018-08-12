@@ -18,10 +18,13 @@ def main():
     seq1 = Sequence.fromstring("ACGT")
     seq2 = Sequence.fromstring("ACGGCT")
 
+    # seq1 = Sequence.fromstring("SLKMF")
+    # seq2 = Sequence.fromstring("GKLKMF")
+
     sub_m = Score(sub_mat_parse("data/" + SUB_MATRIX + ".txt"))
 
     backtrack_matrix = BacktrackMatrix(seq1, seq2, sub_m)
-
+    print(backtrack_matrix.s)
     align_needleman_wunsch(sub_m, backtrack_matrix.s, seq1, seq2)
 
 
