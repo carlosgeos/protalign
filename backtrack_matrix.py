@@ -34,19 +34,23 @@ class BacktrackMatrix:
 
         for i in range(1, len(self.s)):
             for j in range(1, len(self.s[0])):
-                self.v[i][j]['score'] = max(
-                    g + self.s[i][j - 1][0][0],
-                    e + self.v[i][j - 1]['score']
-                )
+                max_left = max(g + self.s[i][j - 1][0][0],
+                               e + self.v[i][j - 1]['score'])
+
+                self.v[i][j]['score'] = max_left
+
+                if e + self.v[i][j - 1]['score'] == max_left:
+                    self.v[i][j]['extending?'] = True
+                else:
+                    self.v[i][j]['extending?'] = False
 
                 max_top = max(
                     g + self.s[i - 1][j][0][0],
-                    e + self.w[i - 1][j]['score']
-                )
+                    e + self.w[i - 1][j]['score'])
 
                 self.w[i][j]['score'] = max_top
 
-                if e + self.w[i - 1][j][0] == max_top:
+                if e + self.w[i - 1][j]['score'] == max_top:
                     self.w[i][j]['extending?'] = True
                 else:
                     self.w[i][j]['extending?'] = False

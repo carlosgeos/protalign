@@ -24,7 +24,6 @@ def main():
     sub_m = Score(sub_mat_parse("data/" + SUB_MATRIX + ".txt"))
 
     backtrack_matrix = BacktrackMatrix(seq1, seq2, sub_m)
-    print(backtrack_matrix.s)
     align_needleman_wunsch(sub_m, backtrack_matrix.s, seq1, seq2)
 
 
