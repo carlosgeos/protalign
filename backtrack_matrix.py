@@ -44,9 +44,8 @@ class BacktrackMatrix:
                 else:
                     self.v[i][j]['extending?'] = False
 
-                max_top = max(
-                    g + self.s[i - 1][j][0][0],
-                    e + self.w[i - 1][j]['score'])
+                max_top = max(g + self.s[i - 1][j][0][0],
+                              e + self.w[i - 1][j]['score'])
 
                 self.w[i][j]['score'] = max_top
 
@@ -64,11 +63,11 @@ class BacktrackMatrix:
                 self.s[i][j] = []
 
                 if(diagonal == max_option):
-                    self.s[i][j].append((diagonal, 'UL', False))
+                    self.s[i][j].append((max_option, 'UL', False))
                 if(top == max_option):
-                    self.s[i][j].append((top, 'U', self.w[i][j]['extending?']))
+                    self.s[i][j].append((max_option, 'U', self.w[i][j]['extending?']))
                 if(left == max_option):
-                    self.s[i][j].append((left, 'L', False))
+                    self.s[i][j].append((max_option, 'L', self.v[i][j]['extending?']))
 
 
 class BacktrackMatrixSW(BacktrackMatrix):

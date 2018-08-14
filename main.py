@@ -11,12 +11,12 @@ def main():
     seq_all = seq_parse("data/" + SEQUENCE_FILE + ".fasta")
     sequences = [Sequence(seq) for seq in seq_all]
 
-    #seq2 = sequences[2]; seq1 = sequences[3]
+    seq1 = sequences[3]; seq2 = sequences[5]
     # print(seq1)
     # print(seq2)
 
-    seq1 = Sequence.fromstring("ACGT")
-    seq2 = Sequence.fromstring("ACGGCT")
+    # seq1 = Sequence.fromstring("ACGT")
+    # seq2 = Sequence.fromstring("ACGGCT")
 
     # seq1 = Sequence.fromstring("SLKMF")
     # seq2 = Sequence.fromstring("GKLKMF")
@@ -24,7 +24,8 @@ def main():
     sub_m = Score(sub_mat_parse("data/" + SUB_MATRIX + ".txt"))
 
     backtrack_matrix = BacktrackMatrix(seq1, seq2, sub_m)
-    align_needleman_wunsch(sub_m, backtrack_matrix.s, seq1, seq2)
+    k = 2                       # max number of optimal alignments
+    align_needleman_wunsch(k, sub_m, backtrack_matrix.s, seq1, seq2)
 
 
     # print("---------------------------------------------------")
