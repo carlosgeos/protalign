@@ -1,12 +1,8 @@
 from util import print_lalign_output
-import numpy
-numpy.set_printoptions(threshold=numpy.nan)
 
 
-def align_needleman_wunsch(k, sub_m, backtrack_matrix, seq1, seq2,
-                           i=None, j=None, align1="", align2="",
-                           extending=False):
-    s = backtrack_matrix
+def align_needleman_wunsch(k, sub_m, s, seq1, seq2, i=None, j=None,
+                           align1="", align2=""):
 
     if i is None:
         i = len(seq2)
@@ -37,7 +33,7 @@ def align_needleman_wunsch(k, sub_m, backtrack_matrix, seq1, seq2,
             k = k - 1
             align_needleman_wunsch(k, sub_m, s, seq1, seq2, i, j, align1, align2)
 
-        if i >= 0 and j >= 0 and direction == 'UL' and not extending:
+        if i >= 0 and j >= 0 and direction == 'UL':
             align1 += seq1[j - 1]
             align2 += seq2[i - 1]
             i = i - 1

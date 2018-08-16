@@ -1,7 +1,10 @@
-from textwrap import wrap
-import re
+from util import print_lalign_output
+
 
 def find_max(s):
+    """Finds the max value in the matrix, together with its indeces
+
+    """
     max_cell = {
         'i': 0,
         'j': 0,
@@ -9,7 +12,7 @@ def find_max(s):
     }
     for i in range(len(s)):
         for j in range(len(s[0])):
-            current_value = s[i][j]
+            current_value = s[i][j][0][0]
             if current_value > max_cell['max_value']:
                 max_cell['i'] = i
                 max_cell['j'] = j
@@ -18,48 +21,51 @@ def find_max(s):
     return max_cell
 
 
-def align_smith_waterman(sub_m, svw, seq1, seq2, g, e):
-    s = svw[0]; v = svw[1]; w = svw[2] # unpacking
-    path = []
+def align_smith_waterman(sub_m, s, seq1, seq2):
+    """Starting at the max value in the matrix, bactrack to a cell whose
+    score is 0, and align the partial sequences.
+
+    """
     max_cell = find_max(s)
 
     i = max_cell['i']
     j = max_cell['j']
-    final_score = 0
+    score = s[i][j][0][0]
     align1 = ""
     align2 = ""
-    opening = True              # Are we opening a gap?
+    path = set()
 
-    while i > 0 or j > 0:
-        score = s[i][j]
-        score_diag = s[i - 1][j - 1]
-        match_score = sub_m.get_score_by_index(j - 1, seq1, i - 1, seq2)
+    while (i > 0 or j > 0):
+        path.add((i, j))     # this path will be set to 0 when recalibrating
+        cell_score = s[i][j][0][0]
+        direction = s[i][j][0][1]
+        # means extending
+        if s[i][j][0][2]:
+            # remove the UL option in next cell in path, since we are
+            # extending and either L or U should follow, but never UL
+            if direction == 'L':
+                if len(s[i][j - 1]) > 1:
+                    s[i][j - 1] = list(filter(lambda x: x[1] != 'UL', s[i][j - 1]))
+            elif direction == 'U':
+                if len(s[i - 1][j]) > 1:
+                    s[i - 1][j] = list(filter(lambda x: x[1] != 'UL', s[i - 1][j]))
 
-        if i >= 0 and j >= 0 and score == score_diag + match_score:
-            path.append((i, j))
-            final_score += match_score
+        if i >= 0 and j >= 0 and direction == 'UL':
             align1 += seq1[j - 1]
             align2 += seq2[i - 1]
             i = i - 1
             j = j - 1
-            opening = True      # reset flag
-
-        elif score == v[i][j]:
-            path.append((i, j))
-            final_score += g if opening else e
-            align1 += seq1[j- 1]
+        elif direction == 'L':
+            align1 += seq1[j - 1]
             align2 += "-"
             j = j - 1
-            opening = False     # consider next gap as extending
-        elif score == w[i][j]:
-            path.append((i, j))
-            final_score += g if opening else e
+        elif direction == 'U':
             align1 += "-"
             align2 += seq2[i - 1]
             i = i - 1
-            opening = False     # consider next gap as extending
 
-        if score == 0: break
+        if cell_score == 0: break
 
+    print_lalign_output(align1[::-1], align2[::-1], sub_m, score, seq1, seq2, "SW")
 
-    return align1[::-1], align2[::-1], final_score, path
+    return path                 # for recalibration

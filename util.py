@@ -95,34 +95,30 @@ def generate_dots(align1, align2, sub_m):
 
     return dots, colons, semicolons
 
-def print_lalign_output(align1, align2, sub_m, score, seq1, seq2):
+def print_lalign_output(align1, align2, sub_m, score, seq1, seq2, align_type="NW"):
     """Mimic LALIGN's output
     """
     (dots, colons, semicolons) = generate_dots(align1, align2, sub_m)
     out = ""
 
-    # split strings as a list, wrap each element to 50 characters
-    a1 = re.findall('.{1,50}', align1)
-    a2 = re.findall('.{1,50}', align2)
-    d = re.findall('.{1,50}', dots)
+    # split strings as a list, wrap each element to 60 characters
+    a1 = re.findall('.{1,60}', align1)
+    a2 = re.findall('.{1,60}', align2)
+    d = re.findall('.{1,60}', dots)
 
     for i in range(0, len(a1)):
         # combine string + dots + string
         out += a1[i] + "\n" + d[i] + "\n" + a2[i] + "\n\n"
 
-    print("--- Global align ---")
+    if align_type is "NW":
+        print("--- Global align ---")
+    else:
+        print("--- Local align ---")
     print("Opening gap penalty:\t", GAP_PENALTY)
     print("Extending gap penalty:\t", E_GAP_PENALTY)
-    print("N-W score:\t\t", score)
-    identity = "{:%}".format(colons / max(len(seq1), len(seq2)))
-    similarity = "{:%}".format((semicolons + colons)
-                               / max(len(seq1), len(seq2)))
+    print(align_type, "score:\t\t", score)
+    identity = "{:%}".format(colons / len(align1))
+    similarity = "{:%}".format((semicolons + colons) / len(align1))
     print("Identity:\t\t", identity)
     print("Similarity:\t\t", similarity, "\n")
     print(out)
-
-
-
-     # return {"aligned_sequences": out,
-     #       "colons": dots[1],
-     #        "semicolons": dots[2]}

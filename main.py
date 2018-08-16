@@ -4,50 +4,39 @@ from backtrack_matrix import BacktrackMatrix, BacktrackMatrixSW
 from nw import align_needleman_wunsch
 from sw import align_smith_waterman
 from util import seq_parse, sub_mat_parse
-from glob_opts import SEQUENCE_FILE, SUB_MATRIX
+from glob_opts import WW_SEQUENCES_FILE, SUB_MATRIX, FULL_SEQUENCES_FILE
 
 
 def main():
-    seq_all = seq_parse("data/" + SEQUENCE_FILE + ".fasta")
-    sequences = [Sequence(seq) for seq in seq_all]
+    ww_seqs = [Sequence(seq) for seq in seq_parse("data/" + WW_SEQUENCES_FILE + ".fasta")]
 
-    seq1 = sequences[3]; seq2 = sequences[5]
-    # print(seq1)
-    # print(seq2)
+    ww_seq1 = ww_seqs[1]; ww_seq2 = ww_seqs[2]
 
-    # seq1 = Sequence.fromstring("ACGT")
-    # seq2 = Sequence.fromstring("ACGGCT")
+    # test1 = Sequence.fromstring("ACGT")
+    # test2= Sequence.fromstring("ACGGCT")
 
-    # seq1 = Sequence.fromstring("SLKMF")
-    # seq2 = Sequence.fromstring("GKLKMF")
+    # test3 = Sequence.fromstring("SLKMF")
+    # test4 = Sequence.fromstring("GKLKMF")
 
     sub_m = Score(sub_mat_parse("data/" + SUB_MATRIX + ".txt"))
 
-    backtrack_matrix = BacktrackMatrix(seq1, seq2, sub_m)
+    backtrack_matrix = BacktrackMatrix(ww_seq1, ww_seq2, sub_m)
     k = 2                       # max number of optimal alignments
-    align_needleman_wunsch(k, sub_m, backtrack_matrix.s, seq1, seq2)
+    align_needleman_wunsch(k, sub_m, backtrack_matrix.s, ww_seq1, ww_seq2)
 
+    print("\n---------------------------------------------------\n")
 
-    # print("---------------------------------------------------")
-    # print("SW align")
-    # SW
-    # score_matrix_sw = BacktrackMatrixSW(seq1, seq2, sub_m, GAP_PENALTY,
-    #E_GAP_PENALTY, INFINITY)
+    full_seqs = [Sequence(seq) for seq in seq_parse("data/" + FULL_SEQUENCES_FILE + ".fasta")]
 
-    # svw = (score_matrix_sw.s, score_matrix_sw.v, score_matrix_sw.w)
+    seq1 = full_seqs[2]
+    seq2 = full_seqs[3]
+    backtrack_matrix_sw = BacktrackMatrixSW(seq1, seq2, sub_m)
 
-    # l = 3
-    # for i in range(0, l):
-    #     align1, align2, final_score, path = align_smith_waterman(sub_m, svw, seq1, seq2,
-    #                                                              GAP_PENALTY, E_GAP_PENALTY)
-    #     score_matrix_sw.recalibrate(path, GAP_PENALTY, E_GAP_PENALTY, INFINITY)
-
-    #     print("Local alignment number:", i + 1)
-    #     dots = generate_dots(align1, align2, sub_m)
-    #     ll_output = generate_lalign_output(align1, align2, dots)
-    #     print("Similarity score:", final_score)
-    #     print(ll_output)
-
+    l = 3
+    for i in range(l):
+        path_taken = align_smith_waterman(sub_m, backtrack_matrix_sw.s, seq1, seq2)
+        if i != l - 1:          # do not recalibrate last time
+            backtrack_matrix_sw.recalibrate(path_taken)
 
 if __name__ == '__main__':
     main()
