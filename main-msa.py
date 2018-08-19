@@ -3,7 +3,6 @@ from pssm import *
 from sw import *
 from score_matrix import ScoreMatrixSW
 from util import msa_parse, seq_parse
-from collections import Counter
 from functools import reduce
 
 import math
