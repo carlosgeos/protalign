@@ -1,46 +1,53 @@
-from sequence import *
-from pssm import *
-from sw import *
-from score_matrix import ScoreMatrixSW
+from sequence import Sequence
+from pssm import transpose_aa_chains, aa_count, \
+    weighted_alphas, aa_frequencies, pssm_gen
+from sw_msa import align_smith_waterman
+from backtrack_matrix_msa import BacktrackMatrixSWMSA
 from util import msa_parse, seq_parse
 from functools import reduce
+from glob_opts import ALIGNMENTS_FILE_NAMES, FULL_SEQUENCES_FILE, BASES
 
 import math
 import numpy as np
 
 
-BASES = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I',
-         'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']
 
-ALIGNMENTS_FILE_NAMES = {"muscle": "data/msaresults-muscle.fasta",
-                         "clustal-omega": "data/msaresults-clustalo.fasta",
-                         "tcoffee": "data/msaresults-tcoffee.fasta"}
+pssm_collection = {}
+for name, file_path in ALIGNMENTS_FILE_NAMES.items():
+    alignments = msa_parse(ALIGNMENTS_FILE_NAMES[name])
+    nseq = len(alignments)
+    beta = math.sqrt(nseq)
+    # chain 3 functions like: f(g(h(x))) and obtain the raw_counts
+    raw_count_per_column = reduce(lambda x, f: f(x), [transpose_aa_chains,
+                                                      aa_count], alignments)
 
-SEQUENCES_FILE_NAME = "data/protein-sequences.fasta"
+    alpha = weighted_alphas(raw_count_per_column)
+    relative_counts = aa_frequencies(raw_count_per_column, nseq)
+    print(relative_counts[40])
 
+    pssm = np.transpose(pssm_gen(relative_counts, alpha, beta))
+    pssm_collection[name] = pssm
 
-print("\nMUSCLE PSSM")
-alignments = msa_parse(ALIGNMENTS_FILE_NAMES["muscle"])
-nseq = len(alignments)
-beta = math.sqrt(nseq)
-# chain 3 functions like: f(g(h(x))) and obtain the raw_counts
-raw_count_per_column = reduce(lambda x, f: f(x), [transpose_aa_chains,
-                                                  aa_count,
-                                                  remove_gaps], alignments)
+    print(name + " PSSM\n")
+    print(pssm)
+    print(len(pssm))
 
+    consensus = "".join(list(map(lambda x: BASES[np.argmax(x)], pssm)))
+    print("Consensus of PSSM", name, ":")
+    print(consensus, end="\n\n\n")
 
-alpha = weighted_alphas(raw_count_per_column)
-relative_counts = aa_frequencies(raw_count_per_column, nseq)
+test = pssm_collection["muscle"]
 
-muscle_pssm_m = pssm(relative_counts, alpha, beta)
-# np.set_printoptions(precision=2, threshold=2000) # show full matrix
-pssm_in_detail(muscle_pssm_m)
+print(test[1])
 
+sequences = [Sequence(seq) for seq in seq_parse("data/" + FULL_SEQUENCES_FILE + ".fasta")]
 
-sequences = seq_parse(SEQUENCES_FILE_NAME)
-for seq in sequences:
-    for pssm in pssms:
-        score_matrix = ScoreMatrixSW(seq[1], muscle_pssm_m, -3)
-        region = alignSmithWaterman(muscle_pssm_m, score_matrix.s, seq[1], -3)
-        print("\nAligning sequence:", seq[0])
-        print(region[0])
+for row in test:
+    row[20] = -5
+backtrack_matrix = BacktrackMatrixSWMSA(sequences[0], test)
+# print(backtrack_matrix.s)
+
+# print(backtrack_matrix.s)
+
+consensus = "".join(list(map(lambda x: BASES[np.argmax(x)], pssm)))
+align_smith_waterman(sequences[0], backtrack_matrix.s, consensus)

@@ -70,6 +70,48 @@ def sub_mat_parse(ifile):
     return sub_mat
 
 
+def msa_parse(ifile):
+    """Multiple alignment file parser. This helper function parses a FASTA
+    formatted file using regular expressions
+
+    :param ifile: input file
+    :returns: all the alignments in the file
+    :rtype: list
+
+    It works as follows:
+
+    The file is read and newline characters stripped off. A sequence
+    can be discriminated from the others knowing the fact that it
+    starts with the ">" separator and it ends with a string (of at
+    least length 20) of upper-case letters and gaps ('-'). The lazy
+    quantifier "*" is important here. We find all matches and make a
+    first (raw) list.
+
+    A list of tuples is then made in which each one of them contains
+    the description in the first position and the amino_acid_chain in
+    the second.
+
+    Assumptions:
+
+    - No line/sequence starts with ";"
+    - Sequences do not end in "*"
+    - No word > 20 chars in the description.
+
+    FASTA file format: https://zhanglab.ccmb.med.umich.edu/FASTA/
+
+    """
+    with open(ifile, 'r') as fasta:
+        data = fasta.read().replace('\n', '')
+    split_sequences = re.findall('>.*?[A-Z|-]{20,}', data)
+
+    for i in range(0, len(split_sequences)):
+        amino_acid_chain = re.search('[A-Z|-]{20,}', split_sequences[i]).group(0)
+        description = re.sub('[A-Z|-]{20,}', '', split_sequences[i])
+        split_sequences[i] = (description, amino_acid_chain)
+
+    return split_sequences
+
+
 def generate_dots(align1, align2, sub_m):
     """LALIGN-like display dots, the count of colons and semicolons is
     used to determine the identity and similarity percentage (just

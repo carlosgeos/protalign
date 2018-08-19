@@ -1,12 +1,9 @@
 from collections import Counter
 from functools import reduce
+from glob_opts import BASES
 
 import math
 import numpy as np
-
-
-BASES = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I',
-         'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']
 
 
 def transpose_aa_chains(alignments):
@@ -26,19 +23,20 @@ def aa_count(columns):
     return [Counter(column) for column in columns]
 
 
-def remove_gaps(counters):
-    """Ignore '-' in the alignments to perform the frequency calculation
+# def remove_gaps(counters):
+#     """Ignore '-' in the alignments to perform the frequency calculation
 
-    """
-    return [{residue: count for residue, count in column.items() if residue != '-'}
-            for column in counters]
+#     """
+#     return [{residue: count for residue, count in column.items() if residue != '-'}
+#             for column in counters]
 
 
 def weighted_alphas(raw_counts):
     """Returns the weighted counts for each column. For example, if column
     at position 3 of the alignment only shows some residue (doesn't
     matter which) 150 times, the element of the returned vector at
-    index 3 will be 150.
+    index 3 will be 150. The rest of times it shows a gap and is not
+    counted.
 
     """
     return [reduce(lambda res, value: res + value, dic.values(), 0)
@@ -55,14 +53,14 @@ def aa_frequencies(counters, nseq):
             for column in counters]
 
 
-def pssm(counters, alpha, beta):
+def pssm_gen(counters, alpha, beta):
     """Returns a PSSM matrix
     """
     swissprotValues = {'A': 8.26, 'R': 5.53, 'N': 4.05, 'D': 5.46, 'C': 1.37,
                        'Q': 3.93, 'E': 6.73, 'G': 7.08, 'H': 2.27, 'I': 5.93,
                        'L': 9.65, 'K': 5.82, 'M': 2.41, 'F': 3.86, 'P': 4.72,
                        'S': 6.60, 'T': 5.35, 'W': 1.09, 'Y': 2.92, 'V': 6.86,
-                       'B': 0, 'Z': 0, 'X': 0}
+                       'B': 0, 'Z': 0, 'X': 0, '-': 200}
 
     nbases = len(BASES)
     ncol = len(counters)
@@ -76,13 +74,3 @@ def pssm(counters, alpha, beta):
             m[position][i] += math.log10(q / (swissprotValues[key] / 100))
 
     return m
-
-
-def pssm_in_detail(pssm_m):
-    print(pssm_m)
-    for i in range(len(pssm_m)):
-        print("AminoAcid", BASES[i])
-        for j in range(len(pssm_m[0])):
-            if pssm_m[i][j] != 0:
-                print("Column number", j, end=" : ")
-                print(pssm_m[i][j])
