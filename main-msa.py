@@ -10,9 +10,6 @@ from glob_opts import ALIGNMENTS_FILE_NAMES, FULL_SEQUENCES_FILE, BASES, GAP_PEN
 import math
 import numpy as np
 
-
-
-pssm_collection = {}
 sequences = [Sequence(seq) for seq in seq_parse("data/" + FULL_SEQUENCES_FILE + ".fasta")]
 
 for name, file_path in ALIGNMENTS_FILE_NAMES.items():
@@ -29,7 +26,6 @@ for name, file_path in ALIGNMENTS_FILE_NAMES.items():
     pssm_info = pssm_gen(relative_counts, alpha, beta)
     pssm = np.transpose(pssm_info['pssm'])
     consensus = pssm_info['consensus']
-    pssm_collection[name] = pssm
 
     print(name + " PSSM\n")
     print(pssm)
@@ -38,10 +34,9 @@ for name, file_path in ALIGNMENTS_FILE_NAMES.items():
     print(consensus, end="\n\n\n")
 
     for seq in sequences:
+        l = 2                   # reported sub-alignments
         backtrack_matrix = BacktrackMatrixSWMSA(seq, pssm)
-        print("\n\n\n\n\n")
-        # print(backtrack_matrix.s[267][34])
-        # for row in backtrack_matrix.s:
-        #     for elem in row:
-
-        align_smith_waterman(seq, backtrack_matrix.s, consensus)
+        print("Aligning sequence: ", seq.description)
+        for i in range(l):
+            path = align_smith_waterman(seq, backtrack_matrix.s, consensus)
+            backtrack_matrix.recalibrate(path)

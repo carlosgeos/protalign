@@ -60,8 +60,6 @@ def set_gap_penalties(m, counters):
     return m
 
 
-
-
 def pssm_gen(counters, alpha, beta):
     """Returns a PSSM matrix
     """
@@ -80,10 +78,7 @@ def pssm_gen(counters, alpha, beta):
             position = BASES.index(key) # the PSSM has structure
             q = (alpha[i] * counters[i][key] + beta * (swissprotValues[key] / 100)) \
                 / (alpha[i] + beta)
-            if q == 0:
-                print("q is:", q)
             m[position][i] += math.log10(q / (swissprotValues[key] / 100))
-            # print(m[position][i])
 
     # Get consensus before altering gap values
     consensus = "".join(list(map(lambda x: BASES[np.argmax(x)], np.transpose(m))))

@@ -1,7 +1,6 @@
 from util import sub_mat_parse, print_lalign_output
-from glob_opts import BASES, SUB_MATRIX
+from glob_opts import SUB_MATRIX
 from score import Score
-import numpy as np
 
 
 def find_max(s):
