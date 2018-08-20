@@ -1,6 +1,8 @@
+import os
+import contextlib
 import numpy as np
 import re
-from glob_opts import GAP_PENALTY, E_GAP_PENALTY
+from glob_opts import GAP_PENALTY, E_GAP_PENALTY, FASTA_TESTING, FASTA_TRAINING
 
 
 def seq_parse(ifile):
@@ -164,3 +166,106 @@ def print_lalign_output(align1, align2, sub_m, score, seq1, seq2, align_type="NW
     print("Identity:\t\t", identity)
     print("Similarity:\t\t", similarity, "\n")
     print(out)
+
+
+def remove_fasta_files():
+    """Helper function to clean directory when we want to produce new
+    FASTA files.
+
+    """
+    with contextlib.suppress(FileNotFoundError):
+        os.remove(FASTA_TESTING)
+    with contextlib.suppress(FileNotFoundError):
+        os.remove(FASTA_TRAINING)
+
+
+def parse_cath(cath_file):
+    """Given a CATH_info.txt file as input, it compiles a list of (file,
+    seq_ids)
+
+    """
+    list_of_f = []
+    with open(cath_file, 'r') as f:
+        for seq in f:
+            filename = seq[:4]
+            seq_id = seq[4]
+            list_of_f.append((filename, seq_id))
+
+    return list_of_f
+
+
+def mapping(residue_struct_tuple):
+    """Given a (residue, struct) tuple as input, modify its structure as
+    follows:
+
+    H, G, I     -> H
+    E, B        -> E
+    T, C, S, \s -> C
+
+    """
+    if residue_struct_tuple[1] in ['H', 'G', 'I']:
+        residue_struct_tuple = (residue_struct_tuple[0], 'H')
+    elif residue_struct_tuple[1] in ['E', 'B']:
+        residue_struct_tuple = (residue_struct_tuple[0], 'E')
+    else:
+        residue_struct_tuple = (residue_struct_tuple[0], 'C')
+
+    return residue_struct_tuple
+
+
+def clean_lower_case(tupl):
+    """From the documentation:
+
+    If this (AA) letter is lower case this means this is a cysteine
+    that form a sulfur bridge with the other amino acid in this column
+    with the same lower case letter.
+
+    We simply set it to C.
+
+    """
+    if tupl[0].islower():
+        tupl = ('C', tupl[1])
+    return tupl
+
+
+def dssp_parse(ifile, sequence_id="A"):
+    """Parses a DSSP formatted file and returns a list of the form:
+
+    [('A', 'C'), ('R', 'C'), ('S', 'C'), ('T', 'C'), ('N', 'C'),
+    ... and so on
+
+    """
+    # search for the pattern that contains the third, fourth and fifth
+    # columns
+    with open(ifile, 'r') as dssp:
+        aa_struct_tuples = re.findall('\s+\d+\s+\d+\s' + sequence_id + '\s(.)\s\s(.)',
+                                      dssp.read())
+    # filter B, X and Z
+    aa_struct_tuples = list(filter(lambda x: x[0] not in ['B', 'X', 'Z'],
+                                   aa_struct_tuples))
+    # lower case letters -> C
+    aa_struct_tuples = list(map(lambda x: clean_lower_case(x),
+                                aa_struct_tuples))
+
+    # apply mapping
+    aa_struct_tuples = list(map(lambda x: mapping(x), aa_struct_tuples))
+
+    return aa_struct_tuples
+
+
+def create_fasta(accession, file_name, aa_struct_tuples):
+    """Generates a FASTA formatted file with an accession, a file_name and
+    the tuple containing the residues
+
+    These tuples are previously extracted from the DSSP output
+
+    The only thing that is different is that its structure is also
+    included in the next line
+
+    """
+    sequence = ''.join(map(lambda x: x[0], aa_struct_tuples))
+    structures = ''.join(map(lambda x: x[1], aa_struct_tuples))
+    with open(file_name, 'a') as fasta_file:
+        fasta_file.write(">" + accession + "\n")
+        fasta_file.write(sequence + "\n")
+        fasta_file.write(structures + "\n")

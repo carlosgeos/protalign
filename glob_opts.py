@@ -14,3 +14,15 @@ ALIGNMENTS_FILE_NAMES = {"muscle": "data/msaresults-muscle.fasta",
 
 BASES = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I',
          'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V', '-']
+
+
+# GOR
+CATH_FILE = "data/CATH_info_test.txt"  # change !
+
+DSSP_PATH = "data/dssp/"
+DSSP_TEST_PATH = "data/dssp_test/"
+TEST_CATH_FILE = "data/CATH_info_test.txt"
+TRAINING_CATH_FILE = "data/CATH_info.txt"
+
+FASTA_TRAINING = "trainingset.fasta"
+FASTA_TESTING = "testingset.fasta"

@@ -1,6 +1,9 @@
 # GOR training set
 data/dssp
 
+trainingset.fasta
+testingset.fasta
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
