@@ -1,6 +1,6 @@
 from collections import Counter
 from functools import reduce
-from glob_opts import BASES
+from glob_opts import BASES, GAP_PENALTY
 
 import math
 import numpy as np
@@ -23,14 +23,6 @@ def aa_count(columns):
     return [Counter(column) for column in columns]
 
 
-# def remove_gaps(counters):
-#     """Ignore '-' in the alignments to perform the frequency calculation
-
-#     """
-#     return [{residue: count for residue, count in column.items() if residue != '-'}
-#             for column in counters]
-
-
 def weighted_alphas(raw_counts):
     """Returns the weighted counts for each column. For example, if column
     at position 3 of the alignment only shows some residue (doesn't
@@ -43,7 +35,6 @@ def weighted_alphas(raw_counts):
             for dic in raw_counts]
 
 
-
 def aa_frequencies(counters, nseq):
     """Same structure as raw_counts, but the values are divided by the
     number of sequences.
@@ -53,6 +44,24 @@ def aa_frequencies(counters, nseq):
             for column in counters]
 
 
+def set_gap_penalties(m, counters):
+    """Set the 21st column of the PSSM to the gap penalty that we want for
+    that location in the consensus sequence. We set GAP_PENALTY if
+    there is little chance of finding a gap and 0 if it is very
+    likely.
+
+    """
+    for i in range(len(counters)):
+        m[20][i] = GAP_PENALTY
+        if '-' in counters[i]:
+            if counters[i]['-'] > 0.7:
+                m[20][i] = - 0.1    # Very little gap penalty, a gap is common
+
+    return m
+
+
+
+
 def pssm_gen(counters, alpha, beta):
     """Returns a PSSM matrix
     """
@@ -60,7 +69,7 @@ def pssm_gen(counters, alpha, beta):
                        'Q': 3.93, 'E': 6.73, 'G': 7.08, 'H': 2.27, 'I': 5.93,
                        'L': 9.65, 'K': 5.82, 'M': 2.41, 'F': 3.86, 'P': 4.72,
                        'S': 6.60, 'T': 5.35, 'W': 1.09, 'Y': 2.92, 'V': 6.86,
-                       'B': 0, 'Z': 0, 'X': 0, '-': 200}
+                       'B': 0, 'Z': 0, 'X': 0, '-': 10}
 
     nbases = len(BASES)
     ncol = len(counters)
@@ -71,6 +80,13 @@ def pssm_gen(counters, alpha, beta):
             position = BASES.index(key) # the PSSM has structure
             q = (alpha[i] * counters[i][key] + beta * (swissprotValues[key] / 100)) \
                 / (alpha[i] + beta)
+            if q == 0:
+                print("q is:", q)
             m[position][i] += math.log10(q / (swissprotValues[key] / 100))
+            # print(m[position][i])
 
-    return m
+    # Get consensus before altering gap values
+    consensus = "".join(list(map(lambda x: BASES[np.argmax(x)], np.transpose(m))))
+    m = set_gap_penalties(m, counters)
+
+    return {'pssm': m, 'consensus': consensus}

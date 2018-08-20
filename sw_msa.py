@@ -42,23 +42,9 @@ def align_smith_waterman(seq, s, consensus):
     path = set()
 
     while (i > 0 or j > 0):
-        print("SW !!!")
-        print(i)
-        print(j)
         path.add((i, j))     # this path will be set to 0 when recalibrating
         cell_score = s[i][j][0][0]
-        print("cell_score: ", cell_score)
         direction = s[i][j][0][1]
-        # means extending
-        # if s[i][j][0][2]:
-        #     # remove the UL option in next cell in path, since we are
-        #     # extending and either L or U should follow, but never UL
-        #     if direction == 'L':
-        #         if len(s[i][j - 1]) > 1:
-        #             s[i][j - 1] = list(filter(lambda x: x[1] != 'UL', s[i][j - 1]))
-        #     elif direction == 'U':
-        #         if len(s[i - 1][j]) > 1:
-        #             s[i - 1][j] = list(filter(lambda x: x[1] != 'UL', s[i - 1][j]))
 
         if i >= 0 and j >= 0 and direction == 'UL':
             align1 += consensus[j - 1]
