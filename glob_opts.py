@@ -26,3 +26,5 @@ TRAINING_CATH_FILE = "data/CATH_info.txt"
 
 FASTA_TRAINING = "trainingset.fasta"
 FASTA_TESTING = "testingset.fasta"
+
+CONFORMATIONS = ['C', 'E', 'H']

@@ -2,7 +2,7 @@ import os
 import contextlib
 import numpy as np
 import re
-from glob_opts import GAP_PENALTY, E_GAP_PENALTY, FASTA_TESTING, FASTA_TRAINING
+from glob_opts import *
 
 
 def seq_parse(ifile):
@@ -228,16 +228,20 @@ def clean_lower_case(tupl):
     return tupl
 
 
-def dssp_parse(ifile, sequence_id="A"):
+def dssp_parse(file_id, sequence_id="A"):
     """Parses a DSSP formatted file and returns a list of the form:
 
-    [('A', 'C'), ('R', 'C'), ('S', 'C'), ('T', 'C'), ('N', 'C'),
-    ... and so on
+    ("ARNDCQEGHILKMFPSTWYV", "CEHCEHCEHCEHCEHCEHCEH")
 
     """
+    if CATH_FILE == TRAINING_CATH_FILE:
+        full_path = DSSP_PATH + file_id + ".dssp"
+    else:
+        full_path = DSSP_TEST_PATH + file_id + ".dssp"
+
     # search for the pattern that contains the third, fourth and fifth
     # columns
-    with open(ifile, 'r') as dssp:
+    with open(full_path, 'r') as dssp:
         aa_struct_tuples = re.findall('\s+\d+\s+\d+\s' + sequence_id + '\s(.)\s\s(.)',
                                       dssp.read())
     # filter B, X and Z
@@ -250,10 +254,13 @@ def dssp_parse(ifile, sequence_id="A"):
     # apply mapping
     aa_struct_tuples = list(map(lambda x: mapping(x), aa_struct_tuples))
 
-    return aa_struct_tuples
+    sequence = ''.join(map(lambda x: x[0], aa_struct_tuples))
+    structures = ''.join(map(lambda x: x[1], aa_struct_tuples))
+
+    return (sequence, structures)
 
 
-def create_fasta(accession, file_name, aa_struct_tuples):
+def create_fasta(accession, sequence, structure):
     """Generates a FASTA formatted file with an accession, a file_name and
     the tuple containing the residues
 
@@ -263,9 +270,12 @@ def create_fasta(accession, file_name, aa_struct_tuples):
     included in the next line
 
     """
-    sequence = ''.join(map(lambda x: x[0], aa_struct_tuples))
-    structures = ''.join(map(lambda x: x[1], aa_struct_tuples))
+    if CATH_FILE == TRAINING_CATH_FILE:
+        file_name = FASTA_TRAINING
+    else:
+        file_name = FASTA_TESTING
+
     with open(file_name, 'a') as fasta_file:
         fasta_file.write(">" + accession + "\n")
         fasta_file.write(sequence + "\n")
-        fasta_file.write(structures + "\n")
+        fasta_file.write(structure + "\n")
