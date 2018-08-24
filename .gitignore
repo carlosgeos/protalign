@@ -1,6 +1,3 @@
-# GOR training set
-data/dssp
-
 trainingset.fasta
 testingset.fasta
 
