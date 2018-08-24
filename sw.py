@@ -2,7 +2,7 @@ from util import print_lalign_output
 
 
 def find_max(s):
-    """Finds the max value in the matrix, together with its indeces
+    """Finds the max value in the matrix, together with its indices
 
     """
     max_cell = {

@@ -17,7 +17,11 @@ BASES = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I',
 
 
 # GOR
-CATH_FILE = "data/CATH_info_test.txt"  # change !
+BASES = ['A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I',
+         'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V']
+f_sr_i = len(BASES)         # index to store f_sr
+
+CATH_FILE = "data/CATH_info.txt"  # change !
 
 DSSP_PATH = "data/dssp/"
 DSSP_TEST_PATH = "data/dssp_test/"
@@ -28,3 +32,4 @@ FASTA_TRAINING = "trainingset.fasta"
 FASTA_TESTING = "testingset.fasta"
 
 CONFORMATIONS = ['C', 'E', 'H']
+CONFORMATIONS_INDICES = [0, 1, 2]

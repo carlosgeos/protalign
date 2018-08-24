@@ -4,7 +4,7 @@ from score import Score
 
 
 def find_max(s):
-    """Finds the max value in the matrix, together with its indeces
+    """Finds the max value in the matrix, together with its indices
 
     """
     max_cell = {
